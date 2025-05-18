@@ -1,0 +1,17 @@
+[project]
+name = "perception-models"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "einops>=0.8.1",
+    "ftfy>=6.3.1",
+    "regex>=2024.11.6",
+    "timm>=1.0.15",
+    "torch==2.5.1",
+    "torchaudio==2.5.1",
+    "torchcodec==0.1",
+    "torchvision==0.20.1",
+    "xformers>=0.0.29.post1",
+]
