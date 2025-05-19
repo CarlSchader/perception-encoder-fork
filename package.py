@@ -7,6 +7,7 @@ import core.vision_encoder.transforms as transforms
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--config", "-c", type=str, default="PE-Core-B16-224", choices=pe.CLIP.available_configs())
+parser.add_argument("--only-vision-encoder", "-v", action="store_true", help="Only export vision encoder")
 args = parser.parse_args()
 
 model = pe.CLIP.from_config(args.config, pretrained=True)
@@ -16,6 +17,10 @@ tokenizer = transforms.get_text_tokenizer(model.context_length)
 
 cwd = os.getcwd()
 path = os.path.join(cwd, args.config + ".package.pt")
+
+if args.only_vision_encoder:
+    path = os.path.join(cwd, args.config + "-vision.package.pt")
+
 if os.path.exists(path):
     print(f"Removing existing package at {path}")
     os.remove(path)
@@ -37,8 +42,13 @@ with torch.package.PackageExporter(path) as exporter:
         "ftfy",
         "regex",
     ])
-    exporter.save_pickle("model", "model.pkl", model)
-    exporter.save_pickle("get_image_transform", "get_image_transform.pkl", transforms.get_image_transform)
-    exporter.save_pickle("get_text_tokenizer", "get_text_tokenizer.pkl", transforms.get_text_tokenizer)
+
+    if args.only_vision_encoder:
+        exporter.save_pickle("model", "model.pkl", model.visual)
+        exporter.save_pickle("get_image_transform", "get_image_transform.pkl", transforms.get_image_transform)   
+    else:
+        exporter.save_pickle("model", "model.pkl", model)
+        exporter.save_pickle("get_image_transform", "get_image_transform.pkl", transforms.get_image_transform)
+        exporter.save_pickle("get_text_tokenizer", "get_text_tokenizer.pkl", transforms.get_text_tokenizer)
 
 print(f"Package saved to {path}")
